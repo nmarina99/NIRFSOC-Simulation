@@ -1,4 +1,3 @@
-
 '''
 A GUI for creating fast intensity plots for Gaussian beams
 Utilizes the tkinter, numpy, and matplotlib packages, and imports the GaussianBeam.py file
