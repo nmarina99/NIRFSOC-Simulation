@@ -9,7 +9,7 @@ The following packages were used:
 * `tkinter`
 
 ## How to Get Started Using This Application?
-- The `GaussianBeam.py` file contains the class used to simulate the Gaussian Beam.
+- The `GaussianBeam.py` file contains the class used to simulate a Gaussian beam.
   Read the comments to understand the class methods.
 - The `intensityPlot.py` file is a GUI application importing the `GaussianBeam.py`
   file. The parameter inputs are self explanatory, but more information can be found
