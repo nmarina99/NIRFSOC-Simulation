@@ -1,6 +1,6 @@
 '''
 A class for simulating Gaussian Beams
-Utilizes the numpy and matplotlib packages
+Utilizes the numpy, scipy, and matplotlib packages
 Created On: 10/23/19
 Created By: Nicholas Marina
 Last Updated: 10/30/19
@@ -24,12 +24,11 @@ class GaussianBeam:
         self.waist_z = waist_z
         self.z0 = (self.waist**2)*(np.pi/wavelength)
         self.I = 2*power/(np.pi*self.waist)
-    def intensity_2d(self, z):
+    def intensity2D(self, z):
         '''Returns the intensity (in W/m^2) of the Gaussian beam in the plane distance z away from the waist
         param z: distance from the beam waist (in meters)'''
         # W and zeta are parameters used in the intensity calculations
-        W = self.waist*np.sqrt(1 + ((z - waist_z)/self.z0)**2)
-        zeta = np.arctan((z - waist_z)/self.z0)
+        W = self.waist*np.sqrt(1 + ((z - self.waist_z)/self.z0)**2)
         def intensity(rho):
             '''Returns the intensity (in W/m^2) of the Gaussian beam distance rho away from the center
             param rho: distance from the center of the beam (in meters)'''
@@ -38,7 +37,7 @@ class GaussianBeam:
             return U
         # Returns the intensity function for the plane
         return intensity
-    def radial_intensity(self, zL, N=100):
+    def radialIntensity(self, zL, N=100):
         '''Plots the intensity (in W/m^2) as a function of distance from the center of the beam at distance z from the waist
         param zL: distance from the beam waist (in meters)
         param N: the number of points to sample for (defaults to 100)'''
@@ -46,10 +45,10 @@ class GaussianBeam:
         # linspace object is an array of values to sample (acts like a vector)
         r = np.linspace(-2*W, 2*W, N)
         for z in zL:    
-            I = np.vectorize(self.intensity_2d(z))(r)
+            I = np.vectorize(self.intensity2D(z))(r)
             plt.plot(r, I)
         plt.show()
-    def intensity_plot(self, z, xw = None , yw = None, NX = 100, NY = 100):
+    def intensityPlot(self, z, xw = None , yw = None, NX = 100, NY = 100):
         '''Plots the intensity (in W/m^2) distance z away from the beam waist, over a rectangle of size xw*yw
         param z: distance from the beam waist (in meters)
         param xw, yw: horizontal and vertical width of the measurement area (in meters) - defaults to 2 times the beam width
@@ -64,25 +63,14 @@ class GaussianBeam:
         y = np.linspace(-yw/2, yw/2, NY)
         # meshgrid object is a 2x2 matrix of points to sample
         X, Y = np.meshgrid(x, y)
-        Z = np.vectorize(lambda x, y:self.intensity_2d(z)(np.sqrt(x**2 + y **2)))(X, Y)
+        Z = np.vectorize(lambda x, y:self.intensity2D(z)(np.sqrt(x**2 + y **2)))(X, Y)
         plt.imshow(Z, extent=[-xw*50, xw*50, -yw*50, yw*50], cmap='plasma')
         plt.title('Irradiance (W/m²) at ' + str(z) + ' m (' + str(self.wavelength*1e9) + ' nm, ' + str(self.power*1000) + ' mW, ' + str(self.divergence) + '° divergence)')
         plt.xlabel('x (cm)')
         plt.ylabel('y (cm)')
         plt.colorbar()
         plt.show()
-    def max_intensity(self, z1, z2, N = 100):
-        '''Plots the maximum intensity (in W/m^2) of the beam between distances z1 and z2 from the beam waist
-        param z1, z1: starting and ending points to measure intensity over (in meters)
-        param N: number of points to sample for (defaults to 100)'''
-        z = np.linspace(z1, z2, N)
-        I = np.vectorize(lambda z: self.I/(1 + ((z - self.waist_z)/self.z0)**2))(z)
-        plt.plot(z, I)
-        plt.title('Maximum Irradiance (' + str(self.wavelength*1e9) + ' nm, ' + str(self.power*1000) + ' mW, ' + str(self.divergence) + '° divergence)')
-        plt.ylabel('Irradiance (W/m²)')
-        plt.xlabel('Distance (m)')
-        plt.show()
-    def width_plot(self, z1, z2, N = 100):
+    def widthPlot(self, z1, z2, N = 100):
         '''Plots beam width (in cm) of the beam between distances z1 and z2 from the beam waist
         param z1, z1: starting and ending points to measure beam waist over (in meters)
         param N: number of points to sample for (defaults to 100)'''
@@ -128,14 +116,27 @@ class GaussianBeam:
         waist = self.thinLensFunction(distances, focal_lengths)
         z = np.linspace(z1, z2, N)
         W = np.vectorize(waist)(z)
-        plt.plot(z, W, 'b')
-        plt.plot(z, -W, 'b')
+        plt.plot(z, 100*W, 'b')
+        plt.plot(z, -100*W, 'b')
         for d in distances:
             plt.axvline(x=d)
+        plt.title('Beam Propogation Through Thin Lens System')
+        plt.ylabel('Beam Width (cm)')
+        plt.xlabel('Distance (m)')
         plt.show()
+    def lensSystemIntensity(self, distances, focal_lengths, z, xw=None, yw=None, NX=100, NY=100):
+        beams = [self]
+        for i in range(len(distances)):
+            beams.append(beams[i].thinLens(distances[i], focal_lengths[i]))
+        for i in range(len(distances)):
+            if z <= distances[i]:
+                beams[i].intensityPlot(z, xw, yw, NX, NY)
+                return
+        beams[-1].intensityPlot(z, xw, yw, NX, NY)
 
 if __name__ == '__main__':
     # These are some tests; they will not execute if imported
     cheap = GaussianBeam(850e-9, 1.5e-3, 4)
     expensive = GaussianBeam(850e-9, 3e-3, 0.0344)
-
+    cheap.thinLensPlot([0.25], [0.25], 0, 3)
+    cheap.lensSystemIntensity([0.25], [0.25], 3)
