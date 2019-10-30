@@ -3,7 +3,7 @@ A class for simulating Gaussian Beams
 Utilizes the numpy and matplotlib packages
 Created On: 10/23/19
 Created By: Nicholas Marina
-Last Updated: 10/25/19
+Last Updated: 10/30/19
 '''
 
 import numpy as np
