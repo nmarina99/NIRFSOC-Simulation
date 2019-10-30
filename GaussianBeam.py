@@ -124,8 +124,7 @@ class GaussianBeam:
         param distances: a list of distances of the lenses from z = 0 (in meters)
         param focal_lengths: a list of focal lengths of the lenses (in meters)
         param z1, z1: the start and end distances to plot, respectively (in meters)
-        param N: the number of points to plot (defaults to 1000)
-        '''
+        param N: the number of points to plot (defaults to 1000)'''
         waist = self.thinLensFunction(distances, focal_lengths)
         z = np.linspace(z1, z2, N)
         W = np.vectorize(waist)(z)
