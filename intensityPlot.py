@@ -14,14 +14,14 @@ def plot():
     # Plots the intensity map of the Gaussian beam with the parameters specified in the GUI
     print(xw.get())
     beam = GaussianBeam.GaussianBeam(float(wl.get())*1e-9, float(P.get())*1e-3, float(theta.get()))
-    if not xw.get() and not yw.get == '':
-        beam.intensityPlot(float(d.get()))
+    if not xw.get()  and not yw.get == '':
+        beam.intensity_plot(float(d.get()))
     elif not xw.get() and yw.get:
-        beam.intensityPlot(float(d.get()), yw=float(yw.get())/1000)
+        beam.intensity_plot(float(d.get()), yw=float(yw.get())/1000)
     elif xw.get() and not yw.get():
-        beam.intensityPlot(float(d.get()), xw=float(xw.get())/100)
+        beam.intensity_plot(float(d.get()), xw=float(xw.get())/100)
     else:
-        beam.intensityPlot(float(d.get()), xw=float(xw.get())/100, yw=float(yw.get())/100)
+        beam.intensity_plot(float(d.get()), xw=float(xw.get())/100, yw=float(yw.get())/100)
 
 def update_params():
     # Updates parameters calculated on the GUI's text labels
