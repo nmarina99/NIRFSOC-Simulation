@@ -8,6 +8,7 @@ Last Updated: 10/30/19
 
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.stats import norm
 
 class GaussianBeam:
     def __init__(self, wavelength, power, divergence, waist_z = 0):
@@ -23,7 +24,7 @@ class GaussianBeam:
         self.waist = wavelength/(np.pi*np.tan(np.radians(divergence)))
         self.waist_z = waist_z
         self.z0 = (self.waist**2)*(np.pi/wavelength)
-        self.I = 2*power/(np.pi*self.waist)
+        self.I = 2*power/(np.pi*self.waist**2)
     def intensity2D(self, z):
         '''Returns the intensity (in W/m^2) of the Gaussian beam in the plane distance z away from the waist
         param z: distance from the beam waist (in meters)'''
@@ -133,10 +134,19 @@ class GaussianBeam:
                 beams[i].intensityPlot(z, xw, yw, NX, NY)
                 return
         beams[-1].intensityPlot(z, xw, yw, NX, NY)
+    def squareAperturePower(self, z, xw, yw):
+        '''Returns the power through a rectangular aperture with the beam centered, with specified side lengths, in watts
+        param z: distance to measure power (in meters)
+        xw, yw: dimensions of the aperture (in meters)
+        '''
+        W = self.waist*np.sqrt(1 + ((z - self.waist_z)/self.z0)**2)
+        I = self.I*(self.waist/W)**2
+        print(xw/W)
+        return self.power*(2*norm.cdf(xw/W) - 1)*(2*norm.cdf(yw/W) - 1)
 
 if __name__ == '__main__':
     # These are some tests; they will not execute if imported
     cheap = GaussianBeam(850e-9, 1.5e-3, 4)
     expensive = GaussianBeam(850e-9, 3e-3, 0.0344)
-    cheap.thinLensPlot([0.25], [0.25], 0, 3)
-    cheap.lensSystemIntensity([0.25], [0.25], 3)
+    print(expensive.squareAperturePower(0, 2*expensive.waist, 2*expensive.waist))
+
