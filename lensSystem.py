@@ -26,8 +26,10 @@ def update():
         for i in range(len(distances)):
             beam = beam.thinLens(distances[i], focal_lengths[i])
         angle = beam.divergence
+        PR = beam.squareAperturePower(float(z.get()), float(xw.get())/100, float(yw.get())/100)
         W.set('Beam Diameter: ' + np.format_float_scientific(200*width, 3) + ' cm')
         theta.set('Beam Divergence: ' + np.format_float_scientific(angle, 3) + ' degrees')
+        power_R.set('Power Recieved: ' + np.format_float_scientific(1000*PR, 3) + ' mW')
 
 def width_plot():
     # This function creates a plot of the beam width through the lens system
@@ -65,6 +67,7 @@ tk.Label(master, text='y-axis width (cm)').grid(row=7, column=0)
 # Two StringVar objects are made for the parameters to be given to the user
 W = tk.StringVar()
 theta = tk.StringVar()
+power_R = tk.StringVar()
 
 # Entries are created to enter parameters of the laser
 wavelength = tk.Entry(master)
@@ -91,8 +94,10 @@ xw.grid(row=6, column=1)
 yw.grid(row=7, column=1)
 
 # Labels are made to give the user parameters about the beam exiting the system
+tk.Label(textvariable=power_R).grid(row=5, column=3)
 tk.Label(textvariable=W).grid(row=6, column=3)
 tk.Label(textvariable=theta).grid(row=7, column=3)
+power_R.set('Power Recieved: ')
 W.set('Beam Diameter: ')
 theta.set('Beam Divergence: ')
 
